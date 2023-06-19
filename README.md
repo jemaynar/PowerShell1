@@ -6,5 +6,5 @@
 
 1. Map-LowerCase.ps1 - Maps input string array to lowercase.
 2. Get-DiskInventory.ps1 - Retrieves logical disk information from the supplied computer. (Powershell in a Month of Lunches Book)
-3. Get-Get-PhysicalAdapters.ps1 - Gets network adapters for a computer.  (Powershell in a Month of Lunches Book)
+3. Get-PhysicalAdapters.ps1 - Gets network adapters for a computer.  (Powershell in a Month of Lunches Book)
 4. Get-DisksBelowSpaceThreshold.ps1 - Gets disks below free space threadhold for array of computers.  I've customized this one to make it my own. (Powershell in a Month of Lunches Book)
