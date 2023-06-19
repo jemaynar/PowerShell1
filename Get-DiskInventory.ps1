@@ -10,7 +10,7 @@ space.
 The computer name, to query. Default: Localhost.
 .PARAMETER drivetype
 The drive type to query. See Win32_LogicalDisk documentation
-for values. 3 is a fixed disk, and is the default.
+for values. 3 is a fixed disk, 2 is removable disk, and 3 is the default.
 .EXAMPLE
 Get-DiskInventory -computername SERVER-R2 -drivetype 3
 #>
