@@ -38,4 +38,4 @@ function selectData {
             @{ label = '% Free'; expression = { $_.FreeSpace / $_.Size * 100 -as [int] } }
 }
 
-$computerNames | Select-Object { selectData($_) } | Format-Table
+$computerNames | Select-Object { selectData($_) }
