@@ -4,7 +4,7 @@ Get drives below free space threshold
 .Description
 This command will get all local drives that have less than the specified percentage of free space available.
 .Parameter ComputerNames
-The names of the computer to check. The default is localhost.
+The names of the computers to check. The default is localhost.
 .Parameter MinimumPercentFree
 The minimum percent free diskspace. This is the threshhold. The default value is 10. Enter a number between 1 and 100.
 .Example
@@ -18,7 +18,7 @@ Find all disks on localhost & DESKTOP1 with less than 99% free space.
 Find all disks on localhost with less than 10% free space.
 #>
 Param (
-    [String[]]$computerNames=@("localhost","DESKTOP-KCHJOEI"),
+    [String[]]$computerNames=@("localhost"),
     [int]$MinimumPercentFree=10
 )
 
