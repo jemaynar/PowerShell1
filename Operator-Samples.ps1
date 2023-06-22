@@ -9,3 +9,8 @@ $True -is [bool] # True
 
 # String replacement
 "192.168.34.12" -replace "34","15" # 192.168.15.12
+
+# Split + Join
+$array = "one","two","three","four","five"
+$string = $array -join '|'
+$string
