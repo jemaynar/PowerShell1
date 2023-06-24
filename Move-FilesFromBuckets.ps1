@@ -19,6 +19,10 @@ The fewer than this number of tiles are in the target directory trigger a move t
 Removes empty folders after execution complete.
 .EXAMPLE
 .\Move-FilesFromBuckets -numberOfFilesToMove 1 -bucketFolderRegex '^[\d]*$' -sourcePath 'C:\files' -destinationPath 'c:\files' -fileMask '*.txt' -threshold 100000 -Verbose
+Moves 1 file from the sub-folders of c:\files where sub-folder names are digits and file names match file mask *.txt if the source folder contains fewer than 100,000 files, then removes any empty sub-folders that matched the regex pattern.
+.EXAMPLE
+.\Move-FilesFromBuckets -numberOfFilesToMove 1 -bucketFolderRegex '^[\d]*$' -sourcePath 'C:\files' -destinationPath 'c:\files' -fileMask '*.txt' -threshold 100000 -removeEmptyFolders $false -Verbose
+Moves 1 file from the sub-folders of c:\files where sub-folder names are digits and file names match file mask *.txt if the source folder contains fewer than 100,000 files, then does not remove any sub-folders even if they were empty.
 #>
 [cmdletbinding()]
 Param (
