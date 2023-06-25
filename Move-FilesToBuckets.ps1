@@ -18,7 +18,8 @@ Filter off files using this file mask.
 .PARAMETER threshold
 The number of files that must be present to trigger a move.
 .EXAMPLE
-Move-FilesToBuckets -numberOfFilesToMove 1 -bucketCount 10 -bucketFolderPrefix 'bucket' -sourcePath 'C:\files' -destinationPath 'c:\files' -fileMask '*.txt' -threshold 20
+.\Move-FilesToBuckets -numberOfFilesToMove 6 -bucketCount 2 -bucketFolderPrefix 'bucket_' -sourcePath 'C:\files' -destinationPath 'c:\files' -fileMask '*.txt' -threshold 20 -Verbose
+If threshold of 20 files exist in c:\files then 6 files will be distributed accross 2 sub-folders with prefix bucket_ into c:\Files, where all files that conform to the *.txt file mask will be moved, verbose flag will print out what script is doing.
 #>
 [cmdletbinding()]
 Param (
@@ -46,8 +47,13 @@ if ($count -gt $threshold)
     $buckets = $files | % {$_ | Add-Member NoteProperty "B" ($i++ % $bucketCount) -PassThru} | group B
     $buckets.Name | % {
         $count = ($buckets[$_].Count)
-        Write-Host "Group: $_ Files in group: $count"
-        $bucketsOutputFolder = "$destinationPath\$bucketFolderPrefix_$_"
+        Write-Verbose "Group: $_ Files in group: $count"
+
+        if (-not ([string]::IsNullOrWhiteSpace($bucketFolderPrefix))) { $bucketFolder = "$bucketFolderPrefix$_" }
+        else { $bucketsFolder = $_ }
+
+        $bucketsOutputFolder = Join-Path $destinationPath -ChildPath $bucketFolder
+
         if (-not (Test-Path $bucketsOutputFolder)) 
         {
             mkdir $bucketsOutputFolder
@@ -55,7 +61,7 @@ if ($count -gt $threshold)
         Move-Item $buckets[$_].Group $bucketsOutputFolder
     }
 
-    Write-Host (Get-ChildItem -File -Path $sourcePath | Measure-Object).Count " files remaining in source."
+    Write-Verbose "$((Get-ChildItem -File -Path $sourcePath | Measure-Object).Count) files remaining in source."
 }
 else 
 {
