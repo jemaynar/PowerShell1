@@ -1,32 +1,58 @@
-$Check = gci -Path "c:\Files" -Recurse
+<#
+.SYNOPSIS
+Move-FileWithLog - Grabs the specified number of files from a folder and moves them to another folder and creates a log.
+.DESCRIPTION
+Grabs the specified number of files from a folder and moves them to another folder and creates a log.
+.PARAMETER sourcePath
+The source folder for the move operation.
+.PARAMETER destination
+The destination folder to place the files.
+.PARAMETER fileMask
+The file mask to filter files from source when performing move.
+.PARAMETER logPath
+The path to write the move logs.
+.PARAMETER fileCount
+The maximum number of files to move.
+.EXAMPLE
+.\Move-FileWithLog -sourcePath "c:\files" -destination "c:\files\bucket_1" -logPath "c:\MoveLog" -FileCount 10 -Verbose
+Moves up to 10 files (if they exist) from c:\files to c:\files\bucket_1 and writes a log to c:\MoveLog.
+#>
+[CmdletBinding()]
+Param (
+    [string] $sourcePath = "C:\Files",
+    [string] $destination = "C:\Files\bucket_1",
+    [string] $fileMask = "*",
+    [string] $logPath = "C:\MoveLog",
+    [int] $fileCount = 10
+)
 
-if ($Check.count -lt 1000) 
+$files = gci -Filter $fileMask -Path $sourcePath -Attributes !Directory | Select-Object -First $fileCount
+
+$numberOfFiles = ($Files | Measure-Object).Count
+if ($numberOfFiles -gt 0) 
 {
-    $SourcePath = "C:\Files"
-    $SourcePath
-    $Date = Get-Date -Format "yyyy-MM-ddTHH:mm:ss.fff";
+    Write-Verbose "Moving files."
+
+    $Date = Get-Date -Format "yyyy-MM-ddTHH.mm.ss.fff";
     $Name = "Move_" + $Date + "z.log"
-    $Name
-    $MoveLogDir = "C:\MoveLog"
-    if (-not (Test-Path $MoveLogDir))
+
+    if (-not (Test-Path $logPath))
     {
         Write-Host "Directory Created"
         mkdir $MoveLogDir
     }
-    $MoveLogDir
-    $LogFilePath = Join-Path -Path $MoveLogDir -childPath $Name
-    $LogFilePath
-    $Destination = "C:\Destination"
-    $Destination
-    if (-not (Test-Path $Destination))
+
+    $logFilePath = Join-Path -Path $logPath -childPath $Name
+
+    if (-not (Test-Path $destination))
     {
         Write-Host "Directory Created"
-        mkdir $Destination
+        mkdir $destination
     }
-    $Files = gci -filter *.txt -Path $SourcePath -Recurse
-    # $files
-    $Count = 1000
-    $Files | Select-ObJect -First $Count |
-        Move-Item -Destination $Destination # -Verbose *>&1 | 
-        # Out-File -FilePath $LogFilePath
+
+    $Files | Move-Item -Destination $destination -Verbose *> $logFilePath
+}
+else 
+{
+    Write-Verbose "No Files Moved"
 }
