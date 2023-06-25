@@ -34,11 +34,11 @@ Param (
 
 [int] $count = (Get-ChildItem -File -Path $sourcePath | Measure-Object).Count
 
-Write-Verbose "File Count: $count"
+Write-Verbose "File count: $count"
 
 if ($count -gt $threshold) 
 {
-    Write-Verbose "Move Triggered -> Count: $count > Threshold: $threshold"
+    Write-Verbose "Move triggered -> count: $count > threshold: $threshold"
 
     $files = (Get-ChildItem -File -Path $sourcePath -Filter $fileMask | 
         Select-Object -First $numberOfFilesToMove).FullName
@@ -57,6 +57,7 @@ if ($count -gt $threshold)
         if (-not (Test-Path $bucketsOutputFolder)) 
         {
             mkdir $bucketsOutputFolder
+            Write-Host "Directory created $bucketsOutputFolder"
         }
         Move-Item $buckets[$_].Group $bucketsOutputFolder
     }
@@ -65,5 +66,5 @@ if ($count -gt $threshold)
 }
 else 
 {
-    Write-Verbose "Move Not Triggered -> Count: $count < Threshold: $threshold"
+    Write-Verbose "Move not triggered -> count: $count < threshold: $threshold"
 }

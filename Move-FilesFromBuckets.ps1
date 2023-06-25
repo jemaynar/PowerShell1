@@ -40,14 +40,14 @@ $matchingFolderCount = ($folders | Measure-Object).Count
 
 if ($matchingFolderCount -gt 0) 
 {
-    Write-Verbose 'Matching Folders Found.'
+    Write-Verbose 'Matching folders found.'
 
     $files = $folders | gci -Filter $fileMsk | Select-Object -First $numberOfFilesToMove
 
     $count = ($files | Measure-Object).Count
     if ($count -lt $threshold)
     {
-        Write-Verbose "Move Triggered -> Count: $count < Threshold: $threshold"
+        Write-Verbose "Move triggered -> count: $count < threshold: $threshold"
 
         $files | Select-Object $_.Name | Write-Verbose
 
@@ -55,7 +55,7 @@ if ($matchingFolderCount -gt 0)
     }
     else 
     {
-        Write-Verbose "Move Not Triggered -> Count: $count > Threshold: $threshold"
+        Write-Verbose "Move not triggered -> count: $count > threshold: $threshold"
     }
 
     $emptyFolders = $folders | Where-Object { (gci $_.FullName).count -eq 0 } | select -expandproperty FullName
@@ -71,5 +71,5 @@ if ($matchingFolderCount -gt 0)
 }
 else 
 {
-    Write-Verbose 'No Matching Folders Found.'
+    Write-Verbose 'No matching folders found.'
 }
