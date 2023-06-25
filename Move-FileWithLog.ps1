@@ -38,21 +38,21 @@ if ($numberOfFiles -gt 0)
 
     if (-not (Test-Path $logPath))
     {
-        Write-Host "Directory Created"
         mkdir $MoveLogDir
+        Write-Host "Directory created: $MoveLogDir"
     }
 
     $logFilePath = Join-Path -Path $logPath -childPath $Name
 
     if (-not (Test-Path $destination))
     {
-        Write-Host "Directory Created"
         mkdir $destination
+        Write-Host "Directory created $destination"
     }
 
     $Files | Move-Item -Destination $destination -Verbose *> $logFilePath
 }
 else 
 {
-    Write-Verbose "No Files Moved"
+    Write-Verbose "No files moved."
 }
