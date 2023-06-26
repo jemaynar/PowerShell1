@@ -35,7 +35,7 @@ Param (
     [bool] $removeEmptyFolders = $True
 )
 
-$folders = gci -Path c:\Files -Directory | Where-Object { $_.DirectoryName -match $bucketFolderRegex }
+$folders = gci -Path $sourcePath -Directory | Where-Object { $_.DirectoryName -match $bucketFolderRegex }
 $matchingFolderCount = ($folders | Measure-Object).Count
 
 if ($matchingFolderCount -gt 0) 
