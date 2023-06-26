@@ -35,6 +35,8 @@ Param (
     [bool] $removeEmptyFolders = $False
 )
 
+$formattedThreshold = "{0:N0}" -f $threshold
+
 $folders = gci -Path $sourcePath -Directory | Where-Object { $_.Name -match $bucketFolderRegex }
 $matchingFolderCount = ($folders | Measure-Object).Count
 
@@ -42,8 +44,7 @@ if ($matchingFolderCount -gt 0)
 {
     Write-Verbose 'Matching folders found.'
 
-    $formattedThreshold = "{0:N0}" -f $threshold
-    $triggerFileCount = (gci -Path $sourcePath $fileMask | Measure-Object).Count
+    $triggerFileCount = (gci -Path $destinationPath $fileMask | Measure-Object).Count
     $formattedTriggerFileCount = "{0:N0}" -f $triggerFileCount
     if ($triggerFileCount -lt $threshold) 
     {
@@ -68,7 +69,7 @@ if ($matchingFolderCount -gt 0)
     }
     else 
     {
-        Write-Verbose "Move not triggered -> count: $formattedTriggerFileCount > threshold: $formattedThreshold."
+        Write-Verbose "Move not triggered -> destination count: $formattedTriggerFileCount > threshold: $formattedThreshold."
     }
 
     if ($removeEmptyFolders) 
