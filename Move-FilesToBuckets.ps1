@@ -33,12 +33,15 @@ Param (
 )
 
 [int] $count = (Get-ChildItem -File -Path $sourcePath | Measure-Object).Count
+$formattedCount = "{0:N0}" -f $count
+$formattedThreshold = "{0:N0}" -f $threshold
+$formattedNumberOfFilesToMove = "{0:N0}" -f $numberOfFilesToMove
 
-Write-Verbose "File count: $count"
+Write-Verbose "File count: $formattedCount."
 
 if ($count -gt $threshold) 
 {
-    Write-Verbose "Move triggered -> count: $count > threshold: $threshold"
+    Write-Verbose "Move triggered -> count: $formattedCount > threshold: $formattedThreshold."
 
     $files = (Get-ChildItem -File -Path $sourcePath -Filter $fileMask | 
         Select-Object -First $numberOfFilesToMove).FullName
@@ -46,8 +49,8 @@ if ($count -gt $threshold)
     $i = 0
     $buckets = $files | % {$_ | Add-Member NoteProperty "B" ($i++ % $bucketCount) -PassThru} | group B
     $buckets.Name | % {
-        $count = ($buckets[$_].Count)
-        Write-Verbose "Group: $_ Files in group: $count"
+        $formattedBucketCount = "{0:N0}" -f ($buckets[$_].Count)
+        Write-Verbose "Group: $_ Files in group: $formattedBucketCount."
 
         if (-not ([string]::IsNullOrWhiteSpace($bucketFolderPrefix))) { $bucketFolder = "$bucketFolderPrefix$_" }
         else { $bucketsFolder = $_ }
@@ -57,14 +60,15 @@ if ($count -gt $threshold)
         if (-not (Test-Path $bucketsOutputFolder)) 
         {
             mkdir $bucketsOutputFolder
-            Write-Host "Directory created $bucketsOutputFolder"
+            Write-Host "Directory created: $bucketsOutputFolder."
         }
         Move-Item $buckets[$_].Group $bucketsOutputFolder
     }
 
-    Write-Verbose "$((Get-ChildItem -File -Path $sourcePath | Measure-Object).Count) files remaining in source."
+    $formattedRemaining = "{0:N0}" -f ((Get-ChildItem -File -Path $sourcePath | Measure-Object).Count)
+    Write-Verbose "$formattedRemaining files remaining in source."
 }
 else 
 {
-    Write-Verbose "Move not triggered -> count: $count < threshold: $threshold"
+    Write-Verbose "Move not triggered -> count: $formattedCount < threshold: $formattedThreshold."
 }
