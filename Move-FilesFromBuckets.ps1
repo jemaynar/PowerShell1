@@ -35,37 +35,51 @@ Param (
     [bool] $removeEmptyFolders = $False
 )
 
-$folders = gci -Path $sourcePath -Directory | Where-Object { $_.DirectoryName -match $bucketFolderRegex }
+$folders = gci -Path $sourcePath -Directory | Where-Object { $_.Name -match $bucketFolderRegex }
 $matchingFolderCount = ($folders | Measure-Object).Count
 
 if ($matchingFolderCount -gt 0) 
 {
     Write-Verbose 'Matching folders found.'
 
-    $files = $folders | gci -Filter $fileMsk | Select-Object -First $numberOfFilesToMove
-
-    $count = ($files | Measure-Object).Count
-    if ($count -lt $threshold)
+    $formattedThreshold = "{0:N0}" -f $threshold
+    $triggerFileCount = (gci -Path $sourcePath $fileMask | Measure-Object).Count
+    $formattedTriggerFileCount = "{0:N0}" -f $triggerFileCount
+    if ($triggerFileCount -lt $threshold) 
     {
-        Write-Verbose "Move triggered -> count: $count < threshold: $threshold"
+        Write-Verbose "Move triggered -> destination file count: $formattedTriggerFileCount < threshold: $formattedThreshold."
 
-        $files | Select-Object $_.Name | Write-Verbose
+        $files = $folders | gci -File -Filter $fileMask
+        $count = ($files | Measure-Object).Count
+        $formattedCount = "{0:N0}" -f $count
+        if ($count -gt 0)
+        {
+            $formattedNumberOfFileToMove = "{0:N0}" -f $numberOfFilesToMove
+            Write-Verbose "Found $formattedCount files available to move. Moving up to $formattedNumberOfFileToMove of them."
 
-        $files | Move-Item -Destination $destinationPath
+            $files = $files | Select-Object -First $numberOfFilesToMove
+            $files | Select-Object $_.Name | Write-Verbose
+            $files | Move-Item -Destination $destinationPath
+        }
+        else 
+        {
+            Write-Verbose "Move cancelled: $formattedCount files available to move."
+        }
     }
     else 
     {
-        Write-Verbose "Move not triggered -> count: $count > threshold: $threshold"
+        Write-Verbose "Move not triggered -> count: $formattedTriggerFileCount > threshold: $formattedThreshold."
     }
 
-    if ($removeEmptyFolder) 
+    if ($removeEmptyFolders) 
     {
         $emptyFolders = $folders | Where-Object { (gci $_.FullName).count -eq 0 } | select -expandproperty FullName
         $emptyFolderCount = ($emptyFolders | Measure-Object).Count
         if ($emptyFolders -gt 0)
         {
-            $formattedEmptyFolderCount = "{0:N0}" -f $emptyFolders
-            Write-Verbose "Removing the following $formattedEmptyFolderCount folders:"
+            Write-Verbose "Attempting to remove empty folders."
+            $formattedEmptyFolderCount = "{0:N0}" -f $emptyFolderCount
+            Write-Verbose "Removing the following $formattedEmptyFolderCount empty folders:"
             $emptyFolders | Select-Object $_.DirectoryName | Write-Verbose
             $emptyFolders | % {
                 Remove-Item -Path $_
