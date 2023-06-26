@@ -18,10 +18,10 @@ The fewer than this number of tiles are in the target directory trigger a move t
 .PARAMETER removeEmptyFolders
 Removes empty folders after execution complete.
 .EXAMPLE
-.\Move-FilesFromBuckets -numberOfFilesToMove 1 -bucketFolderRegex '^[\d]*$' -sourcePath 'C:\files' -destinationPath 'c:\files' -fileMask '*.txt' -threshold 100000 -Verbose
+.\Move-FilesFromBuckets -numberOfFilesToMove 1 -bucketFolderRegex '^[\d]*$' -sourcePath 'C:\files' -destinationPath 'c:\files' -fileMask '*.txt' -threshold 100000 -removeEmptyFolders $True  -Verbose
 Moves 1 file from the sub-folders of c:\files where sub-folder names are digits and file names match file mask *.txt if the source folder contains fewer than 100,000 files, then removes any empty sub-folders that matched the regex pattern.
 .EXAMPLE
-.\Move-FilesFromBuckets -numberOfFilesToMove 1 -bucketFolderRegex '^[\d]*$' -sourcePath 'C:\files' -destinationPath 'c:\files' -fileMask '*.txt' -threshold 100000 -removeEmptyFolders $false -Verbose
+.\Move-FilesFromBuckets -numberOfFilesToMove 1 -bucketFolderRegex '^[\d]*$' -sourcePath 'C:\files' -destinationPath 'c:\files' -fileMask '*.txt' -threshold 100000 -Verbose
 Moves 1 file from the sub-folders of c:\files where sub-folder names are digits and file names match file mask *.txt if the source folder contains fewer than 100,000 files, then does not remove any sub-folders even if they were empty.
 #>
 [cmdletbinding()]
@@ -32,7 +32,7 @@ Param (
     [string] $destinationPath,
     [string] $fileMask,
     [int] $threshold,
-    [bool] $removeEmptyFolders = $True
+    [bool] $removeEmptyFolders = $False
 )
 
 $folders = gci -Path $sourcePath -Directory | Where-Object { $_.DirectoryName -match $bucketFolderRegex }
@@ -58,14 +58,18 @@ if ($matchingFolderCount -gt 0)
         Write-Verbose "Move not triggered -> count: $count > threshold: $threshold"
     }
 
-    $emptyFolders = $folders | Where-Object { (gci $_.FullName).count -eq 0 } | select -expandproperty FullName
-    $emptyFolderCount = ($emptyFolders | Measure-Object).Count
-    if ($removeEmptyFolders -AND $emptyFolders -gt 0)
+    if ($removeEmptyFolder) 
     {
-        Write-Verbose "Removing the following $emptyFolderCount folders:"
-        $emptyFolders | Select-Object $_.DirectoryName | Write-Verbose
-        $emptyFolders | % {
-            Remove-Item -Path $_
+        $emptyFolders = $folders | Where-Object { (gci $_.FullName).count -eq 0 } | select -expandproperty FullName
+        $emptyFolderCount = ($emptyFolders | Measure-Object).Count
+        if ($emptyFolders -gt 0)
+        {
+            $formattedEmptyFolderCount = "{0:N0}" -f $emptyFolders
+            Write-Verbose "Removing the following $formattedEmptyFolderCount folders:"
+            $emptyFolders | Select-Object $_.DirectoryName | Write-Verbose
+            $emptyFolders | % {
+                Remove-Item -Path $_
+            }
         }
     }
 }
