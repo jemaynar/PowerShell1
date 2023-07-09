@@ -14,3 +14,4 @@
 8.  Move-FilesFromBuckets.ps1 - Moves files out of sub-folders created by Move-FilesToBuckets.ps1 when file count under threshold.
 9.  Move-FileToBuckets.ps1 - Moves files to an evenly dispursed set set of sub-folders when threshold is exceeded.
 10. Operator-Samples.ps1 - Some operators and what they output.  Mostly code samples mostly.
+11. Split-Join-Samples.ps1 - Sample of how to use -split & -join.
